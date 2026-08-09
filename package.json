@@ -1,6 +1,6 @@
 {
 	"name": "cultsim",
-	"displayName": "Cultist Simulator IDE",
+	"displayName": "Cultist Simulator IDE 2.0",
 	"description": "Cultist Simulator IDE for Modding Core Game",
 	"version": "2.0.0",
 	"publisher": "Hwanwool",
@@ -12,7 +12,7 @@
 		"Visualization",
 		"Other"
 	],
-	"repository": "https://github.com/Tiinusen/vscode-cultsim",
+	"repository": "https://gitee.com/peterreich/cultist-simulator-ide-2.0",
 	"activationEvents": [
 		"onCustomEditor:cultsim.editor.board",
 		"onCommand:cultsim.new.project",
