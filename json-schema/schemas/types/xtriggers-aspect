@@ -1,0 +1,161 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "description": "XTriggers allow a mutated aspect to modify itself. These allow the aspect to transform itself, to mutate the card it belongs to, and/or spawn new cards. Like card XTriggers, aspect XTriggers apply when they are in a recipe with a specific catalyst present.",
+    "patternProperties": {
+        ".*": {
+            "oneOf": [
+                {
+                    "type": "string",
+                    "title": "Basic (Transform)",
+                    "description": "The “basic” XTrigger is only for transformation: you list the element that catalyzes the trigger, then what this aspect will turn into. This replaces the existing mutation with an equal mutation of a different element."
+                },
+                {
+                    "type": "array",
+                    "title": "Advanced",
+                    "additionalItems": false,
+                    "description": "The advanced use allows for a wider variety of effects. Once again, you start with the element that activates the trigger, but then you open a JSON dictionary. In the list, open an object. This object must have an ID, and may have a `morpheffect`, `chance`, and/or `level`.",
+                    "items": {
+                        "type": "object",
+                        "title": "Effect",
+                        "additionalProperties": false,
+                        "required": [
+                            "id"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "description": "id 的作用随 morpheffect 变化：spawn/mutate/transform 时为目标元素 ID；TRM 操作数中为对应对象的 ID，如 DeckDraw/DeckShuffle 的牌组、Recipe/Induce/Link 的配方、LeverFuture/LeverPast 的 lever 值、Trigger/Redirect 的 xtriggers 效果键等。（TRM）"
+                            },
+                            "morpheffect": {
+                                "type": "string",
+                                "description": "morpheffect 决定效果类型：原生支持 spawn、mutate、transform；TRM 扩展操作数 DeckDraw、DeckShuffle、Recipe、Destroy、Decay、LeverFuture、LeverPast、TimeSpend、TimeSet、Trigger、Redirect、Induce、Link、Move、Apply、Break、Func。TRM 操作数中，催化量即相应 Xtrigger 触发所需的性相的数量，反应量即相应卡牌的数量；若 usemyquantity 与 usecatalystquantity 不额外设定，则二者均为 1。（TRM）",
+                                "oneOf": [
+                                    {
+                                        "const": "spawn",
+                                        "description": "XTriggers create new cards. When `level` is specified, the card stack that is created will have a size equal to the level. This is equivalent to the `spawn` behavior for card XTriggers."
+                                    },
+                                    {
+                                        "const": "mutate",
+                                        "description": "XTriggers apply mutations to the card with the mutated aspect. The amount of the aspect mutated onto the card (which can be negative, though a negative amount of an aspect on a card is considered to be zero) is equal to the `level` of the XTrigger. Unlike the mutations shown in the recipes section below, XTrigger mutations are always additive."
+                                    },
+                                    {
+                                        "const": "transform",
+                                        "description": "Transform is the default behaviour, and generally only occurs in the advanced syntax when multiple effects are needed, or a chance or level is desired. The effects of `level` applied to transform-aspect XTriggers is currently unknown, especially when the mutated aspect is already at a non-one level."
+                                    },
+                                    {
+                                        "const": "DeckDraw",
+                                        "description": "从 id 对应的牌组中抽取 level*催化量*反应量 张卡牌。（TRM）"
+                                    },
+                                    {
+                                        "const": "DeckShuffle",
+                                        "description": "重置 id 对应的牌组。（TRM）"
+                                    },
+                                    {
+                                        "const": "Recipe",
+                                        "description": "执行 id 配方。（TRM）"
+                                    },
+                                    {
+                                        "const": "Destroy",
+                                        "description": "摧毁卡牌。此操作数不需要 level。（TRM）"
+                                    },
+                                    {
+                                        "const": "Decay",
+                                        "description": "耗竭卡牌。此操作数不需要 level。（TRM）"
+                                    },
+                                    {
+                                        "const": "LeverFuture",
+                                        "description": "将 id 设为下局游戏使用的 lever 值，usetokenid 决定使用卡牌 id 还是触发该效果的元素 id。尚不明确具体机制。（TRM）"
+                                    },
+                                    {
+                                        "const": "LeverPast",
+                                        "description": "设置本局游戏的 lever 值为当前 id。尚不明确具体机制。（TRM）"
+                                    },
+                                    {
+                                        "const": "TimeSpend",
+                                        "description": "减少卡牌的剩余时间 level/1000 秒。（TRM）"
+                                    },
+                                    {
+                                        "const": "TimeSet",
+                                        "description": "设定卡牌的剩余时间为 level/1000 秒。（TRM）"
+                                    },
+                                    {
+                                        "const": "Trigger",
+                                        "description": "对反应卡牌自身运行其 xtriggers 中 id 对应的效果，强度 = level*催化量*反应量。（TRM）"
+                                    },
+                                    {
+                                        "const": "Redirect",
+                                        "description": "从实际元素（usetokenid 决定）的 xtriggers 里取出 id 列表，逐个执行，遇到 true 停止。（TRM）"
+                                    },
+                                    {
+                                        "const": "Induce",
+                                        "description": "生成一个运行指定 id 定义的 recipe 的动词。此变形效果还支持驱逐属性（expulsion），将内容驱逐到新动词中，但不支持挑战属性。（TRM）"
+                                    },
+                                    {
+                                        "const": "Link",
+                                        "description": "类似于 recipe 中的 linked 代码，在执行当前 recipe 的 linked 代码前，会将给定的 id 添加到执行的队列中（比如 recipe 的 linked 代码给出了 idA 和 idB，而此代码给出了 idC，那么 linked 的判定顺序为 A、B、C）。（TRM）"
+                                    },
+                                    {
+                                        "const": "Move",
+                                        "description": "随机移动到 topath 包含的一个领域。（TRM）"
+                                    },
+                                    {
+                                        "const": "Apply",
+                                        "description": "立即应用当前缓冲的所有效果。（TRM）"
+                                    },
+                                    {
+                                        "const": "Break",
+                                        "description": "终止该配方执行。（TRM）"
+                                    },
+                                    {
+                                        "const": "Func",
+                                        "description": "自定义，相关内容请翻阅 TRM 相关代码。（TRM）"
+                                    }
+                                ]
+                            },
+                            "chance": {
+                                "type": "integer",
+                                "description": "Chance is the likelihood of the XTrigger`s effects happening; chance defaults to 100%",
+                                "default": 100,
+                                "minimum": 0,
+                                "maximum": 100
+                            },
+                            "level": {
+                                "type": "integer",
+                                "description": "level 的作用随 morpheffect 变化，默认为 1。TRM 操作数中：DeckDraw 抽取 level*催化量*反应量 张卡牌；TimeSpend/TimeSet 以 level/1000 秒为单位；Trigger 强度 = level*催化量*反应量。（TRM）",
+                                "default": 1,
+                                "minimum": 0,
+                                "maximum": 100
+                            },
+                            "usemyquantity": {
+                                "type": "boolean",
+                                "description": "是否使用反应量（即相应卡牌的数量）参与计算；不额外设定时反应量为 1。（TRM）"
+                            },
+                            "usecatalystquantity": {
+                                "type": "boolean",
+                                "description": "是否使用催化量（即相应 Xtrigger 触发所需的性相的数量）参与计算；不额外设定时催化量为 1。（TRM）"
+                            },
+                            "usetokenid": {
+                                "type": "boolean",
+                                "description": "true 时使用卡牌 id，false 时使用触发该效果的元素 id；用于 LeverFuture 与 Redirect。（TRM）"
+                            },
+                            "topath": {
+                                "type": "string",
+                                "description": "目标领域路径，Move 操作数将随机移动到 topath 包含的一个领域。（TRM）"
+                            },
+                            "expulsion": {
+                                "allOf": [
+                                    {
+                                        "$ref": "./expulsion"
+                                    }
+                                ],
+                                "description": "驱逐属性，Induce 操作数可将内容驱逐到新动词中，但不支持挑战属性。（TRM）"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

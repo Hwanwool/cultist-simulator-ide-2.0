@@ -1,0 +1,122 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "title": "Slot",
+    "description": "Slots are...slots, defined by elements, verbs or recipes. They act as filters, giving the possibility to put cards into them, if they match their requirements.",
+    "properties": {
+        "id": {
+            "type": "string",
+            "description": "卡槽的身份标识符，单个卡牌中卡槽 id 必须唯一，不同卡牌间允许有重复。"
+        },
+        "label": {
+            "type": "string",
+            "description": "代表卡槽显示的名称。"
+        },
+        "description": {
+            "type": "string",
+            "description": "玩家点开卡槽时显示的描述；如果不填，默认为「埏埴以为器，当其无，有器之用。」——老子"
+        },
+        "required": {
+            "type": "object",
+            "additionalProperties": false,
+            "title": "Required",
+            "description": "卡槽可以容纳的元素（性相或卡牌），当卡牌符合或卡牌上其中一项性相数量大于等于要求时便可放入槽中。slot 的 required 采用或逻辑，与 recipe 的与逻辑相反。只接受正值。",
+            "patternProperties": {
+                ".*": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "title": "Aspect/Element: Amount"
+                }
+            }
+        },
+        "required$add": {
+            "type": "object",
+            "additionalProperties": false,
+            "title": "Required (Merge-Overwrite) (Add)",
+            "patternProperties": {
+                ".*": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "title": "Aspect/Element: Amount"
+                }
+            }
+        },
+        "required$remove": {
+            "type": "array",
+            "additionalItems": false,
+            "title": "Required (Merge-Overwrite) (Remove)",
+            "items": {
+                "type": "string",
+                "title": "Aspect/Element"
+            }
+        },
+        "forbidden": {
+            "type": "object",
+            "additionalProperties": false,
+            "title": "Forbidden",
+            "description": "卡槽不可以容纳的元素（性相或卡牌），当卡牌符合或卡牌上其中一项性相数量大于等于要求时便不可放入槽中。当卡牌同时满足 required 和 forbidden 时，拒绝进入槽。slot 的 forbidden 采用或逻辑。只接受正值。",
+            "patternProperties": {
+                ".*": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "title": "Aspect/Element: Amount"
+                }
+            }
+        },
+        "forbidden$add": {
+            "type": "object",
+            "additionalProperties": false,
+            "title": "Forbidden (Merge-Overwrite) (Add)",
+            "patternProperties": {
+                ".*": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "title": "Aspect/Element: Amount"
+                }
+            }
+        },
+        "forbidden$remove": {
+            "type": "array",
+            "additionalItems": false,
+            "title": "Forbidden (Merge-Overwrite) (Remove)",
+            "items": {
+                "type": "string",
+                "title": "Aspect/Element"
+            }
+        },
+        "essential": {
+            "type": "object",
+            "additionalProperties": false,
+            "title": "Essential",
+            "description": "卡槽必须容纳的元素（性相或卡牌），当卡牌同时符合其中所有条件时方可放入槽中。slot 的 essential 采用与逻辑，与 recipe 的与逻辑一致。如果存在 required，则仍需要满足 required 中的至少一项。只接受正值。",
+            "patternProperties": {
+                ".*": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "title": "Aspect/Element: Amount"
+                }
+            }
+        },
+        "actionId": {
+            "type": "string",
+            "description": "当卡槽写在卡牌中时，在该卡牌进入此事件框时会显示。此属性在 slot 从属于 recipe 或 verb 时被忽略。"
+        },
+        "greedy": {
+            "type": "boolean",
+            "description": "代表该卡槽是否会自动吸取卡牌。此属性在 slot 从属于 verb 时被忽略。"
+        },
+        "consumes": {
+            "type": "boolean",
+            "description": "代表进入该卡槽的卡牌是否会消耗。消耗卡牌时，如果卡牌定义了 burnTo，则转换为 burnTo 定义的卡牌；如果 burnTo 未定义或为空字符串而 decayTo 被定义，则转换为 decayTo 定义的卡牌；如果 burnTo 与 decayTo 都未被定义，则卡牌被销毁。"
+        },
+        "ifaspectspresent": {
+            "type": "array",
+            "additionalItems": false,
+            "description": "定义元素条件（性相或卡牌），当给出的元素符合定义的条件时，将此插槽显示；反之隐藏此插槽。（注意，此代码仅用于 element 中的 slots 代码）",
+            "items": {
+                "type": "string",
+                "title": "element"
+            }
+        }
+    }
+}

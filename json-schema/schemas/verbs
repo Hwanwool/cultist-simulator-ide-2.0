@@ -1,0 +1,78 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "array",
+    "additionalItems": false,
+    "title": "Verbs",
+    "description": "Verbs are verbs. They are the things that you do. Things that you initiate. If a verb is defined in a file, it will stay on the board after it is called once. These are Permanent Verbs. Undefined Verbs, or Temporary Verbs (sometimes called tokens), will disappear once their recipes resolve and the situation ends.",
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+            "id"
+        ],
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "该动词的身份标识符。内容为一串字母。"
+            },
+            "label": {
+                "type": "string",
+                "description": "该动词的名称。内容为一串字符（可以汉字）。"
+            },
+            "description": {
+                "type": "string",
+                "description": "该动词的介绍。内容为一串字符（可以汉字）。"
+            },
+            "icon": {
+                "type": "string",
+                "$comment": "@TODO: Research and provide a description"
+            },
+            "slot": {
+                "allOf": [
+                    {
+                        "$ref": "./types/slot"
+                    }
+                ],
+                "description": "该动词带有的唯一卡槽，详见#slots。注意：仅在 verb 中 slot 没有 s，而且没有最外面的中括号，直接是大括号（即可写的 slot 只有一个）。"
+            },
+            "slots": {
+                "type": "array",
+                "additionalItems": false,
+                "description": "动词允许拥有不止一个卡槽，详见#slots。注意：这将覆盖 slot 代码或出现其他可能的问题，建议不要同时使用 slot 与 slots。",
+                "items": {
+                    "$ref": "./types/slot"
+                }
+            },
+            "Multiple": {
+                "type": "boolean",
+                "description": "是否允许该动词同时出现多个（默认为否）。",
+                "default": false
+            },
+            "Spontaneous": {
+                "type": "boolean",
+                "description": "标识该动词是否属于“临时的”：当该值为 true 时，动词会在 recipe 执行完成后消失（默认为 false）。",
+                "default": false
+            },
+            "maxUnique": {
+                "description": "（TRM）定义同一动词在同一时间可以在板上活动的最大实例数。可以是一个表达式，默认为 1。",
+                "oneOf": [
+                    {
+                        "type": "number",
+                        "minimum": 0,
+                        "title": "数值"
+                    },
+                    {
+                        "type": "string",
+                        "title": "表达式"
+                    }
+                ],
+                "default": 1
+            },
+            "stickySlots": {
+                "type": "boolean",
+                "description": "（TRM）是否允许该动词保留放置在其中的卡牌：当该值为 true 时，放置在动词中的卡牌不会在关闭时返还，而是保留在槽位中（默认为 false）。",
+                "default": false
+            }
+        }
+    }
+}

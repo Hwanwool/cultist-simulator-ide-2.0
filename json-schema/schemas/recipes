@@ -1,0 +1,551 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "array",
+    "additionalItems": false,
+    "title": "Recipes",
+    "description": "Recipes are, in essence, sentences. They require nouns and verbs, and transform them in ways that aren`t possible with individual words. Recipes can be chained together to form metaphorical paragraphs, or they can stand on their own. While “Neville”, “Explore”, and “Forgotten Mithraeum” are all terms we can identify and understand, recipes are how we`re able to tie all those things together into their logical conclusion: Neville exploring the forgotten mithraeum.",
+    "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+            "id"
+        ],
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "对象的唯一标识符。若已存在同 ID 的 recipe，新属性将与原 recipe 合并（用于覆盖修改原版内容）。"
+            },
+            "label": {
+                "type": "string",
+                "description": "点开行动框后显示的文本标题。"
+            },
+            "maxexecutions": {
+                "type": "integer",
+                "description": "该 recipe 可以被进行的最大次数，0 即无限制。",
+                "minimum": 0
+            },
+            "warmup": {
+                "type": "number",
+                "description": "该 recipe 进行的时间。",
+                "minimum": 0
+            },
+            "craftable": {
+                "type": "boolean",
+                "description": "为真时该 recipe 可以被玩家主动使用对应行动框触发，否则只能通过其他方式（如其他的 recipe）触发。默认为 false。"
+            },
+            "hintonly": {
+                "type": "boolean",
+                "description": "为真时该 recipe 无法被实际执行，只做展示描述作用（多用于提示）。"
+            },
+            "signalimportantloop": {
+                "type": "boolean",
+                "description": "这将使游戏在该 recipe 进行时播放一个响亮的声音，以提示有重要事情发生。"
+            },
+            "internaldeck": {
+                "type": "object",
+                "description": "在 recipe 中直接定义一个卡组，见#decks。该卡组仅对使用它的 recipe 可访问。",
+                "additionalProperties": false,
+                "properties": {
+                    "spec": {
+                        "type": "array",
+                        "title": "Cards",
+                        "description": "The actual list of elements to draw from. There can be duplicates of cards: this is often used to influence the probability of one card to be drawn. This cannot be used to allow a given unique card to be drawn more than once.",
+                        "additionalItems": false,
+                        "items": {
+                            "type": "string",
+                            "title": "Card (Element)"
+                        }
+                    },
+                    "draws": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "$comment": "@TODO: Provide title and description"
+                    },
+                    "defaultcard": {
+                        "type": "string",
+                        "description": "Once the deck has been exhausted and the deck does not reset, this card will be the only card drawn from then on. This is required if your deck doesn’t reset - your mod will not execute otherwise."
+                    },
+                    "resetonexhaustion": {
+                        "type": "boolean",
+                        "description": "Whether or not the deck will be reshuffled after all cards have been drawn. Any unique cards in the deck will not be shuffled back in."
+                    }
+                }
+            },
+            "slots": {
+                "type": "array",
+                "description": "recipe 只能拥有一个卡槽，在其进行时会出现，见#slots。",
+                "additionalItems": false,
+                "items": {
+                    "$ref": "./types/slot",
+                    "allOf": [
+                        {
+                            "$ref": "./types/slot"
+                        }
+                    ],
+                    "properties": {
+                        "greedy": {
+                            "type": "boolean",
+                            "description": "When this is true, the slot will pull a qualifying card off the table into the slot automatically, rather than letting the player choose whether to insert a card, or which card to insert."
+                        }
+                    }
+                }
+            },
+            "startdescription": {
+                "type": "string",
+                "description": "开始和进行时行动框显示的文本。"
+            },
+            "description": {
+                "type": "string",
+                "description": "结束后显示的文本。若 recipe 链接到另一个 recipe，此文本不会显示（行动未被视作完成）。"
+            },
+            "requirements": {
+                "$ref": "#/definitions/dictionary",
+                "description": "表示为了进入此 recipe，该行动框内需要满足的条件，element 可以是卡牌或者性相。条件为数值时表示至少需要的数量；（TRM）条件为性相 id 时表明至少需要不少于 recipe 中性相数量，可以用于比较。需满足所有的条件（与逻辑）。数值前和性相 id 前（引号内）添加负号表示需要少于该数量。"
+            },
+            "tablereqs": {
+                "$ref": "#/definitions/dictionary",
+                "description": "与 requirements 类似，区别在于它检测的是桌面上的 element。"
+            },
+            "extantreqs": {
+                "$ref": "#/definitions/dictionary",
+                "description": "与 requirements 类似，区别在于它检测的是整个游戏中（包括其他行动框中）的 element。"
+            },
+            "effects": {
+                "$ref": "#/definitions/dictionary",
+                "description": "产生（正数）/销毁（负数）对应数量的卡牌。当数值为负数时，可以在卡牌 id 处填写性相 id，表示销毁对应数量具有此性相的卡牌（若实际数量低于销毁数量，则全部销毁）。（TRM）当数值为 id 时，将采用该 id 对应元素的个数作为数值。（TRM）可以使用表达式进行计算。"
+            },
+            "purge": {
+                "$ref": "#/definitions/dictionary",
+                "description": "销毁桌面上对应数量的 elements（类似 exile 切换城市时）。若被处理卡牌拥有 decayTo，则以 decay 代替销毁。"
+            },
+            "aspects": {
+                "$ref": "#/definitions/dictionary",
+                "description": "表示 recipe 本身的性相，本身并不显示在性相栏中，但是会参与在 induces 和 xtrigger 的作用中。（TRM）同样可以用性相 id 和表达式。"
+            },
+            "deckeffects": {
+                "$ref": "#/definitions/dictionary",
+                "description": "从一个对应卡组中随机抽取一定数量张牌。（TRM）数量可以是表达式。"
+            },
+            "haltverb": {
+                "$ref": "#/definitions/dictionary",
+                "description": "强行停止一个进行中的 verb，这个 verb 中的所有 elements 弹出（需要玩家“收取”才能放在桌面上）。强制停止一个未在行动框中运行的 verb 不会导致报错。此处 verbID 可以使用通配符形式，且此处数值也仅在通配符形式生效，否则设置为 1 就好。"
+            },
+            "deleteverb": {
+                "$ref": "#/definitions/dictionary",
+                "description": "使此行动框直接消失，里面的 elements 也随之消失。强制删除一个未在运行的 verb 不会导致报错。"
+            },
+            "actionId": {
+                "$ref": "#/definitions/actionId",
+                "$comment": "Seen mixed caseing with this property in core content"
+            },
+            "actionid": {
+                "$ref": "#/definitions/actionId",
+                "$comment": "Seen mixed caseing with this property in core content"
+            },
+            "ending": {
+                "type": "string",
+                "description": "通向对应结局画面。"
+            },
+            "signalEndingFlavour": {
+                "type": "string",
+                "description": "改变 recipe 进行时行动框计时圈线的颜色并播放一个音乐。Grand：黄色 / Melancholy：红色 / Pale：灰白色 / Vile：黄绿色。若非预定义值则默认为 None。",
+                "oneOf": [
+                    {
+                        "const": "None"
+                    },
+                    {
+                        "const": "Grand",
+                        "description": "黄色效果"
+                    },
+                    {
+                        "const": "Melancholy",
+                        "description": "红色效果"
+                    },
+                    {
+                        "const": "Pale",
+                        "description": "灰白色效果"
+                    },
+                    {
+                        "const": "Vile",
+                        "description": "黄绿色效果"
+                    }
+                ]
+            },
+            "burnimage": {
+                "type": "string",
+                "description": "recipe 开始后环绕动作框显示的图片。"
+            },
+            "portaleffect": {
+                "type": "string",
+                "description": "进入对应的漫宿之路，这会导致配方从与门相关的每个牌组中绘制一张牌，并让您在板上从中进行选择。"
+            },
+            "mutations": {
+                "type": "array",
+                "additionalItems": false,
+                "description": "给特定或具有特定性相的卡牌重载（additive 为 false 时）或增加/减少（additive 为 true 时根据 level 的正负）指定数量的性相，且过滤条件除了性相也可以是卡牌。mutation 对性相的改变可以被继承，即使卡牌经过了 xtrigger 或 decayTo 的变换，变异后的卡牌无法堆叠。（TRM）filter 和 level 可以是表达式，并添加 limit 属性以限制最多突变多少个元素。",
+                "items": {
+                    "type": "object",
+                    "title": "Mutation",
+                    "additionalProperties": false,
+                    "required": [
+                        "filter"
+                    ],
+                    "properties": {
+                        "filter": {
+                            "type": "string",
+                            "title": "Filter",
+                            "description": "过滤的条件 id，过滤条件除了性相也可以是卡牌。（TRM）filter 可以是表达式。"
+                        },
+                        "mutate": {
+                            "type": "string",
+                            "title": "Mutation Aspect",
+                            "description": "需要改变的性相 id。"
+                        },
+                        "level": {
+                            "type": "integer",
+                            "title": "Level",
+                            "description": "数值，为正值时增加/重载、负值时减少该数量的性相。（TRM）level 可以是表达式。"
+                        },
+                        "additive": {
+                            "type": "boolean",
+                            "title": "Additive",
+                            "description": "为 false 时重载（用给定值替换现有值），为 true 时根据 level 的正负增加或减少。默认为 false。"
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "title": "Limit",
+                            "description": "（TRM）限制最多突变多少个元素。"
+                        }
+                    }
+                }
+            },
+            "alt": {
+                "type": "array",
+                "title": "Alternative Recipes",
+                "description": "满足一定条件后会取代该 recipe 生效的 recipe，如果 additional 为真值则新的 recipe 在对应行动框中额外进行，要注意这种情况下若该行动框已创建，那么这次转换不会生效。另外如果 additional 为真值的情况下，如果被链接的行动中的 actionid 项写的动作在 verb 中已写出但桌面上未创建，则会创建出对应的 verb，并在此次行动结束后保留对应的空 verb，适合开局时逐个引出游戏进行所需动词；如果被链接的行动中的 actionid 项写的动作在 verb 中未写出且未创建，则会创建出对应的临时 verb（且此 verb 可以读取 image 中对应名字的文件作为卡面），并在行动结束后被删除，适合在弹出临时事件时使用（恐惧和入迷时节的原理即是如此）。expulsion 是可选项，可以将卡牌从当前的 recipe 弹出供其他的 recipe 调用，limit 表示弹出的最大卡牌数量上限，filter 则给出一组 element 及其最小值作为条件，只需满足其一便可弹出。chance 表示这种 recipe 转换发生的概率。chance 不仅可以为固定值，也可以是一段 fucine 表达式，以实现动态概率（TRM 所需）。可以使用通配符 * 对 id 进行结尾，此时游戏会依定义顺序依次判定通配符前部分相匹配的 recipe，遇到第一个匹配的执行跳转。alt 中的 recipe 按顺序生效：只有在前一个 recipe 因为概率或未满足条件失败（如果那个 recipe 是 additional 则只需等其执行完），后一个 recipe 才会开始结算概率与条件，这也意味着该 recipe 实际生效的概率为（1-前面所有 recipe 实际概率之和）* 其标称概率，比方说一组 3 个 recipe 按顺序分别为 30%，50%，100%，那么实际就为 30%，35%，35%。",
+                "additionalItems": false,
+                "items": {
+                    "type": "object",
+                    "description": "Recipe Link Specification",
+                    "additionalProperties": false,
+                    "required": [
+                        "id"
+                    ],
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "此链接指向的 recipe 的 ID。"
+                        },
+                        "chance": {
+                            "type": "integer",
+                            "description": "0-100 的数值，表示此 recipe 被选中的概率。（TRM）也可以是一段 fucine 表达式，以实现动态概率。",
+                            "minimum": 0,
+                            "maximum": 100
+                        },
+                        "challenges": {
+                            "type": "object",
+                            "description": "以性相为基础的挑战，替代 chance。有两种类型 base 和 advanced：base 的对应关系为 0-0%, 1-30%, 5-70%, 10-90%；advanced 为 0-0%, 5-10%, 10-30%, 15-70%, 20-90%（缺省为 base）。如果同时使用 chance 和 challenges，那么成功率取其中较高值。",
+                            "patternProperties": {
+                                ".*": {
+                                    "type": "string",
+                                    "oneOf": [
+                                        {
+                                            "const": "base"
+                                        },
+                                        {
+                                            "const": "advanced"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "additional": {
+                            "type": "boolean",
+                            "description": "为真时新的 recipe 在对应行动框中额外进行（创建一个新的 situation token）。若 additional 为真且该行动框已创建，则这次转换不会生效。"
+                        },
+                        "expulsion": {
+                            "$ref": "./types/expulsion"
+                        }
+                    }
+                }
+            },
+            "linked": {
+                "type": "array",
+                "title": "Linked Recipes",
+                "description": "表示在此 recipe 后会概率生效的 recipe，与 alt 类似，包括关于 challenge 的规则。linked 中的 recipe 按顺序生效：只有在前一个 recipe 因为概率或未满足条件失败，后一个 recipe 才会开始结算概率与条件，实际生效概率为（1-前面所有 recipe 实际概率之和）* 其标称概率。注意：additional recipes 必须为 alternatives（alt），不能是 linked。如果不需要定义其他属性，只需要定义 id，你可以通过一个作为配方 id 的字符串来定义配方链接，不必定义一个只包含 id 属性的整个对象。",
+                "additionalItems": false,
+                "items": {
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "title": "Recipe ID (Shorthand)",
+                            "description": "作为配方 id 的字符串，快捷定义方式，等同于只定义 id 属性的对象。"
+                        },
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "title": "Linked Recipe",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "要执行的 recipe 的 ID。可以使用通配符 * 结尾以匹配多个 recipe。"
+                                },
+                                "chance": {
+                                    "type": "integer",
+                                    "description": "0 到 100 的数字，表示 recipe 执行的百分比概率。（TRM）也可以是一段 fucine 表达式，以实现动态概率。",
+                                    "minimum": 0,
+                                    "maximum": 100
+                                },
+                                "challenges": {
+                                    "type": "object",
+                                    "description": "以性相为基础的挑战，替代 chance。有两种类型 base 和 advanced：base 的对应关系为 0-0%, 1-30%, 5-70%, 10-90%；advanced 为 0-0%, 5-10%, 10-30%, 15-70%, 20-90%（缺省为 base）。如果同时使用 chance 和 challenges，那么成功率取其中较高值。",
+                                    "patternProperties": {
+                                        ".*": {
+                                            "type": "string",
+                                            "oneOf": [
+                                                {
+                                                    "const": "base"
+                                                },
+                                                {
+                                                    "const": "advanced"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "randomPick": {
+                                    "type": "boolean",
+                                    "description": "（TRM）此处 id 需要使用 trm 提供的 recipe 通配符。当运行 linked 时，程序将检索满足通配符的所有配方，随后从中随机选择一个。"
+                                },
+                                "chances": {
+                                    "type": "object",
+                                    "description": "（TRM）在使用 randomPick 时使用。当选择随机配方时，如果配方 ID 在 randomPickChances 集中，则使用定义的值运行机会测试，以确定配方是否有效，即使满足其要求。",
+                                    "patternProperties": {
+                                        ".*": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "integer",
+                                                    "title": "数值"
+                                                },
+                                                {
+                                                    "type": "string",
+                                                    "title": "表达式"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                "useCallback": {
+                                    "type": "string",
+                                    "description": "（TRM）此属性定义回调的名称。解析此配方链接后，如果它定义了此属性，并且定义了它所命名的回调，它将返回有效的回调配方。在实践中，这就是回调如何让配方“返回”或“跳转”到之前定义的配方。若希望使用回调，应该将 id 替换为 useCallback，并唤起之前通过 addCallbacks 定义好的回调标识符。"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "inductions": {
+                "type": "array",
+                "additionalItems": false,
+                "description": "效果类似 alt 中将卡牌弹出并带入新 verb 中 recipe 的功能。expulsion 是过滤条件，其中包含 filter 标识需要的性相，limit 标识最多转移个数。手册中更推荐使用这个代替 alt 的弹出功能。",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "id"
+                    ],
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "description": "被诱导的 recipe 的 ID。"
+                        },
+                        "chance": {
+                            "type": "integer",
+                            "description": "0-100 的数值，表示此诱导发生的概率。",
+                            "minimum": 0,
+                            "maximum": 100
+                        },
+                        "expulsion": {
+                            "$ref": "./types/expulsion"
+                        }
+                    }
+                }
+            },
+            "xpans": {
+                "$ref": "#/definitions/dictionary",
+                "description": "在整张桌面上触发对应的 xtriggers。"
+            },
+            "comments": {
+                "$ref": "#/definitions/comments"
+            },
+            "grandReqs": {
+                "type": "object",
+                "description": "（TRM）此属性与其他需求属性一样工作，它接受一组元素 id 和数量，但元素侧可以引用任何上下文，右侧可以是 Fucine 表达式。",
+                "patternProperties": {
+                    ".*": {
+                        "oneOf": [
+                            {
+                                "type": "integer",
+                                "title": "数量"
+                            },
+                            {
+                                "type": "string",
+                                "title": "Fucine 表达式"
+                            }
+                        ]
+                    }
+                }
+            },
+            "movements": {
+                "type": "object",
+                "description": "（TRM）允许您将一组匹配的元素从当前动词移动到任何目的地（Fucine 路径）。该属性是一组描述目标的 Fucine 路径，与元素 id（或表达式）或更复杂的对象相关联，描述要移动哪些卡以及最多移动多少张卡。如果只提供字符串（元素 ID 或表达式）而不是整个对象，则没有限制，默认目标是桌面。如果要移动具有不同限制的不同元素集，可以将对象列表与 Fucine 路径相关联。",
+                "patternProperties": {
+                    ".*": {
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "description": "元素 ID 或表达式（无限制，默认目标为桌面）"
+                            },
+                            {
+                                "type": "object",
+                                "description": "更复杂的对象，描述要移动哪些卡以及最多移动多少张卡"
+                            }
+                        ]
+                    }
+                }
+            },
+            "previewLabel": {
+                "type": "string",
+                "description": "若定义，将在配方触发之前显示为标签，而非 label。"
+            },
+            "previewDescription": {
+                "type": "string",
+                "description": "若定义，将在配方触发之前显示为行动框显示的文本，而非 description。"
+            },
+            "furthermore": {
+                "type": "object",
+                "description": "（TRM）此代码允许在 recipe 运行完成后额外运行一系列效果，包括 recipe 中的各项效果（如 effects、deckeffects、aspects、mutations、haltverb 等等）。在原有代码的基础上，你可以使用 target 代码来指定应用，这代表着你可以改变在桌面上的卡牌属性，或是将代码运行在其他的行动框中。"
+            },
+            "decays": {
+                "type": "array",
+                "additionalItems": false,
+                "description": "（TRM）效果与 purge 类似，但使用与 filter 相同逻辑进行待衰变卡牌的筛选。若筛出的卡牌没有 decayTo，则销毁。衰败的每个筛选器均可由两种方式定义：一个对象，拥有两项属性 filter（匹配表达式）与 limit（要衰败的卡牌数量）；或一个简单的字符串，可以是表达式（代数运算或逻辑运算），可以是 element id。",
+                "items": {
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "title": "Filter & Limit",
+                            "properties": {
+                                "filter": {
+                                    "type": "string",
+                                    "description": "匹配表达式。"
+                                },
+                                "limit": {
+                                    "type": "integer",
+                                    "description": "要衰败的卡牌数量。"
+                                }
+                            }
+                        },
+                        {
+                            "type": "string",
+                            "title": "表达式或元素 ID",
+                            "description": "可以是表达式（代数运算或逻辑运算），可以是 element id。"
+                        }
+                    ]
+                }
+            },
+            "addCallbacks": {
+                "type": "object",
+                "description": "（TRM）此属性允许在配方链的整个执行过程中存储一个“回调”——一个与任意名称相关联的配方 ID。在配方链的后续部分，如果一个链接属性使用了 useCallback 属性，它就可以读取该属性并选择与之关联的回调作为下一个要执行的配方，从而实现“跳转”到设计该回调应前往的位置。此属性是累加式的：如果在配方链中已经定义了一组回调，那么定义具有相同名称的回调将会覆盖现有的回调，但其他回调不会被清除。要实现这一点，请使用 clearCallbacks 或 resetCallbacks。",
+                "patternProperties": {
+                    ".*": {
+                        "type": "string",
+                        "title": "Recipe ID"
+                    }
+                }
+            },
+            "clearCallbacks": {
+                "type": "boolean",
+                "description": "（TRM）此属性清空所有的回调。"
+            },
+            "saveCheckpoint": {
+                "type": "boolean",
+                "description": "（TRM）将保存一个检查点到这个确切的时刻，并显示一个通知告诉玩家。当触发结局时，如果 legacy 允许并且找到了检查点，则会显示一个额外的按钮来重新加载最后一个检查点。如果玩家退出游戏或重新开始新游戏，检查点将丢失。如果当前 legacy 的 useCheckpoints 属性设置为 false，则不会执行任何操作。"
+            },
+            "setBGMusic": {
+                "type": "array",
+                "additionalItems": false,
+                "description": "（TRM）定义一组用作背景音乐的新曲目。这些文件必须是放置在 mod 根目录下名为 audio 的文件夹中的 mp3 音频文件。文件名必须以文件扩展名书写。此更改不会立即触发音乐更改，在当前曲目结束后选择下一首曲目时将使用新的曲目列表。",
+                "items": {
+                    "type": "string",
+                    "title": "music file"
+                }
+            },
+            "playAudioTrack": {
+                "type": "string",
+                "description": "（TRM）触发时背景音乐立即更改为指定曲目。该曲目不必是当前曲目列表的一部分。播放完毕后，将回到原先设置的曲目列表。文件名必须以文件扩展名书写。"
+            },
+            "tableLeather": {
+                "type": "string",
+                "description": "（TRM）将当前桌面上的地图更换为新图片。图像必须放置在 images/ui 文件夹中。图片必须为规定大小，否则游戏正常无法载入。图片规定大小为 2048*1139。"
+            },
+            "tabletopImage": {
+                "type": "string",
+                "description": "（TRM）将当前的桌面图片更换为新图片。图像必须放置在 images/ui 文件夹中。图片必须为规定大小，否则游戏正常无法载入。图片规定大小为 2900*1700。"
+            },
+            "tableLegs": {
+                "type": "string",
+                "description": "（TRM）将当前的桌子腿更换为新图片。图像必须放置在 images/ui 文件夹中。图片宽度必须为 2900，高度未做限制，但为 4000 左右时显示效果最好。原版桌子腿中间的部分实际也属于贴图的一部分，准确的说桌子的前面是一个完整矩形面。"
+            },
+            "rootEffects": {
+                "type": "object",
+                "description": "（TRM）将指定的 effects 属性应用于根路径。根是一个“容器”，就像“桌面”一样。你可以把它看作是第二个全局表，可以从任何地方访问，不受贪婪槽之类的影响。此属性通常用于存储/读取您不希望作为可见卡存储在表上的全局信息（如进度标志、隐藏进度等）。要读取根中存储的内容，请在表达式中使用路径。",
+                "patternProperties": {
+                    ".*": {
+                        "type": "integer",
+                        "title": "Element: Amount"
+                    }
+                }
+            },
+            "deckShuffles": {
+                "type": "array",
+                "additionalItems": false,
+                "description": "（TRM）将给出的 deck 重新洗牌。",
+                "items": {
+                    "type": "string",
+                    "title": "deck"
+                }
+            },
+            "completeverb": {
+                "type": "object",
+                "description": "（TRM）将给出的 verb（如果存在）的剩余时间清零，这意味着立即结算该 verb 中正在运行的 recipe 段。",
+                "patternProperties": {
+                    ".*": {
+                        "type": "integer",
+                        "title": "Verb: Amount"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "comments": {
+            "type": "string",
+            "description": "注释，不在游戏中显示，供开发者参考。"
+        },
+        "actionId": {
+            "type": "string",
+            "description": "使用的行动的 id。若对应已定义的 verb，该 verb 会在 recipe 结束后保留；若对应行动框已存在则不能再次生成。在 recipe 链中需保持一致，存档读取时以 actionId 确定行动框位置。"
+        },
+        "dictionary": {
+            "type": "object",
+            "patternProperties": {
+                ".*": {
+                    "type": "integer",
+                    "title": "Element: Amount"
+                }
+            }
+        }
+    }
+}
