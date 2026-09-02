@@ -6,162 +6,213 @@
     "description": "Elements are the nouns of the sentence. They are things that are.\n\nElements encompass two categories; cards and aspects. \n\nThe cards on the table are elements. The aspects of cards are also elements. Everything that`s represented as a card, from Lore, Books, Patrons, Influences, is an element.",
     "items": {
         "type": "object",
-        "oneOf": [
-            {
-                "title": "Card",
-                "description": "Cards are the nouns, the things you use in the game. They are, among other things, defined by a set of aspects.",
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id"
-                ],
-                "properties": {
-                    "comments": {
-                        "$ref": "#/definitions/comments"
-                    },
-                    "id": {
-                        "$ref": "#/definitions/id"
-                    },
-                    "label": {
-                        "$ref": "#/definitions/label"
-                    },
-                    "description": {
-                        "$ref": "#/definitions/description"
-                    },
-                    "icon": {
-                        "$ref": "#/definitions/icon"
-                    },
-                    "induces": {
-                        "$ref": "#/definitions/induces"
-                    },
-                    "decayTo": {
-                        "$ref": "#/definitions/decayTo"
-                    },
-                    "verbicon": {
-                        "$ref": "#/definitions/verbicon"
-                    },
-                    "noartneeded": {
-                        "type": "boolean",
-                        "description": "决定这张卡牌是否不需要图片。"
-                    },
-                    "isAspect": {
-                        "$ref": "#/definitions/isAspect",
-                        "const": false
-                    },
-                    "aspects": {
-                        "$ref": "#/definitions/aspects"
-                    },
-                    "lifetime": {
-                        "$ref": "#/definitions/lifetime"
-                    },
-                    "resaturate": {
-                        "$ref": "#/definitions/resaturate"
-                    },
-                    "slots": {
-                        "type": "array",
-                        "description": "该卡牌带有的卡槽，默认为空。详见#slots。",
-                        "additionalItems": false,
-                        "items": {
-                            "$ref": "./types/slot",
-                            "allOf": [
-                                {
-                                    "$ref": "./types/slot"
-                                }
-                            ],
-                            "properties": {
-                                "actionid": {
-                                    "type": "string",
-                                    "description": "The verb name where the slot will appear when the element is inserted."
-                                }
-                            }
-                        }
-                    },
-                    "isHidden": {
-                        "type": "boolean",
-                        "description": "决定这张卡牌是否不显示在情境窗口的左下角。"
-                    },
-                    "unique": {
-                        "type": "boolean",
-                        "description": "决定该卡牌是否同一时间在桌面上至多存在一张（新的卡牌会顶替旧的卡牌），默认为否。"
-                    },
-                    "uniquenessgroup": {
-                        "type": "string",
-                        "description": "具有相同 uniquenessgroup 的卡牌同一时间在桌面上只能存在一叠，即一张或者多张可合并的卡牌，需要与 unique 同时使用才能达到同种只存在一张的效果。（uniquenessgroup 是特殊的一个 aspect，如果没有定义 isHidden 就会在 aspect 中显示出来）默认为空。"
-                    },
-                    "burnTo": {
-                        "type": "string",
-                        "description": "该卡牌在被 slot 消耗后会变为的卡牌；特别地，如果填了自己的 id，作用相当于重置存在时间；默认为空，消逝后不会出现新的卡牌。"
-                    },
-                    "animFrames": {
-                        "type": "integer",
-                        "description": "该卡牌拥有的帧动画数量，默认为空。"
-                    },
-                    "xtriggers": {
-                        "allOf": [
-                            {
-                                "$ref": "./types/xtriggers-card"
-                            }
-                        ],
-                        "description": "该卡牌在离开具有列出的性相的行动框时会对卡牌进行的转换；默认为空，不会有变动。"
-                    },
-                    "inherits": {
-                        "type": "string",
-                        "description": "如同面向对象中类的继承一样，该字段表明该 element 继承自所指向的 element，这使得无需再次编写重复的 slot、xtrigger、aspects 等字段，这些字段在默认情况下会被继承自父 element。值得注意的是，有一些字段，诸如 icon，并不会被继承。"
-                    }
+        "title": "Element",
+        "description": "元素有两种：卡牌（Card）与性相（Aspect）。当对象填入 isAspect: true 时按性相处理，否则按卡牌处理。",
+        "properties": {
+            "comments": {
+                "$ref": "#/definitions/comments"
+            },
+            "id": {
+                "$ref": "#/definitions/id"
+            },
+            "label": {
+                "$ref": "#/definitions/label"
+            },
+            "description": {
+                "$ref": "#/definitions/description"
+            },
+            "icon": {
+                "$ref": "#/definitions/icon"
+            },
+            "induces": {
+                "$ref": "#/definitions/induces"
+            },
+            "decayTo": {
+                "$ref": "#/definitions/decayTo"
+            },
+            "verbicon": {
+                "$ref": "#/definitions/verbicon"
+            },
+            "noartneeded": {
+                "type": "boolean",
+                "description": "决定该元素（卡牌或性相）是否不需要图片。"
+            },
+            "isAspect": {
+                "type": "boolean",
+                "default": false,
+                "description": "决定该对象是否为一种性相，默认为否（所以卡牌不需要填此项，性相必填）。"
+            },
+            "isHidden": {
+                "type": "boolean",
+                "description": "卡牌时决定是否不显示在情境窗口的左下角；性相时决定是否为隐藏性相。"
+            }
+        },
+        "if": {
+            "properties": {
+                "isAspect": {
+                    "const": true
                 }
             },
-            {
-                "title": "Aspect",
-                "description": "The aspects are special elements with fewer properties, that can be seen as metadata, or a more granular type of information we can act on.",
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                    "id",
-                    "isAspect"
-                ],
-                "properties": {
-                    "comments": {
-                        "$ref": "#/definitions/comments"
-                    },
-                    "id": {
-                        "$ref": "#/definitions/id"
-                    },
-                    "label": {
-                        "$ref": "#/definitions/label"
-                    },
-                    "description": {
-                        "$ref": "#/definitions/description"
-                    },
-                    "icon": {
-                        "$ref": "#/definitions/icon"
-                    },
-                    "induces": {
-                        "$ref": "#/definitions/induces"
-                    },
-                    "decayTo": {
-                        "$ref": "#/definitions/decayTo"
-                    },
-                    "verbicon": {
-                        "$ref": "#/definitions/verbicon"
-                    },
-                    "isAspect": {
-                        "$ref": "#/definitions/isAspect",
-                        "const": true
-                    },
-                    "isHidden": {
-                        "type": "boolean",
-                        "description": "决定该性相是否为隐藏性相。"
-                    },
-                    "noartneeded": {
-                        "type": "boolean",
-                        "description": "决定该性相是否不需要图片。"
-                    },
-                    "xtriggers": {
-                        "$ref": "./types/xtriggers-aspect"
-                    }
+            "required": [
+                "isAspect"
+            ]
+        },
+        "then": {
+            "title": "Aspect",
+            "description": "The aspects are special elements with fewer properties, that can be seen as metadata, or a more granular type of information we can act on.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id",
+                "isAspect"
+            ],
+            "properties": {
+                "comments": {
+                    "$ref": "#/definitions/comments"
+                },
+                "id": {
+                    "$ref": "#/definitions/id"
+                },
+                "label": {
+                    "$ref": "#/definitions/label"
+                },
+                "description": {
+                    "$ref": "#/definitions/description"
+                },
+                "icon": {
+                    "$ref": "#/definitions/icon"
+                },
+                "induces": {
+                    "$ref": "#/definitions/induces"
+                },
+                "decayTo": {
+                    "$ref": "#/definitions/decayTo"
+                },
+                "verbicon": {
+                    "$ref": "#/definitions/verbicon"
+                },
+                "isAspect": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "决定该对象是否为一种性相，默认为否；性相必填此项为 true。"
+                },
+                "isHidden": {
+                    "type": "boolean",
+                    "description": "决定该性相是否为隐藏性相。"
+                },
+                "noartneeded": {
+                    "type": "boolean",
+                    "description": "决定该性相是否不需要图片。"
+                },
+                "xtriggers": {
+                    "$ref": "./types/xtriggers-aspect"
                 }
             }
-        ]
+        },
+        "else": {
+            "title": "Card",
+            "description": "Cards are the nouns, the things you use in the game. They are, among other things, defined by a set of aspects.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "comments": {
+                    "$ref": "#/definitions/comments"
+                },
+                "id": {
+                    "$ref": "#/definitions/id"
+                },
+                "label": {
+                    "$ref": "#/definitions/label"
+                },
+                "description": {
+                    "$ref": "#/definitions/description"
+                },
+                "icon": {
+                    "$ref": "#/definitions/icon"
+                },
+                "induces": {
+                    "$ref": "#/definitions/induces"
+                },
+                "decayTo": {
+                    "$ref": "#/definitions/decayTo"
+                },
+                "verbicon": {
+                    "$ref": "#/definitions/verbicon"
+                },
+                "noartneeded": {
+                    "type": "boolean",
+                    "description": "决定这张卡牌是否不需要图片。"
+                },
+                "isAspect": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "决定该对象是否为一种性相，默认为否（所以卡牌不需要填此项，性相必填）。"
+                },
+                "aspects": {
+                    "$ref": "#/definitions/aspects"
+                },
+                "lifetime": {
+                    "$ref": "#/definitions/lifetime"
+                },
+                "resaturate": {
+                    "$ref": "#/definitions/resaturate"
+                },
+                "slots": {
+                    "type": "array",
+                    "description": "该卡牌带有的卡槽，默认为空。详见#slots。",
+                    "additionalItems": false,
+                    "items": {
+                        "$ref": "./types/slot",
+                        "allOf": [
+                            {
+                                "$ref": "./types/slot"
+                            }
+                        ],
+                        "properties": {
+                            "actionid": {
+                                "type": "string",
+                                "description": "The verb name where the slot will appear when the element is inserted."
+                            }
+                        }
+                    }
+                },
+                "isHidden": {
+                    "type": "boolean",
+                    "description": "决定这张卡牌是否不显示在情境窗口的左下角。"
+                },
+                "unique": {
+                    "type": "boolean",
+                    "description": "决定该卡牌是否同一时间在桌面上至多存在一张（新的卡牌会顶替旧的卡牌），默认为否。"
+                },
+                "uniquenessgroup": {
+                    "type": "string",
+                    "description": "具有相同 uniquenessgroup 的卡牌同一时间在桌面上只能存在一叠，即一张或者多张可合并的卡牌，需要与 unique 同时使用才能达到同种只存在一张的效果。（uniquenessgroup 是特殊的一个 aspect，如果没有定义 isHidden 就会在 aspect 中显示出来）默认为空。"
+                },
+                "burnTo": {
+                    "type": "string",
+                    "description": "该卡牌在被 slot 消耗后会变为的卡牌；特别地，如果填了自己的 id，作用相当于重置存在时间；默认为空，消逝后不会出现新的卡牌。"
+                },
+                "animFrames": {
+                    "type": "integer",
+                    "description": "该卡牌拥有的帧动画数量，默认为空。"
+                },
+                "xtriggers": {
+                    "allOf": [
+                        {
+                            "$ref": "./types/xtriggers-card"
+                        }
+                    ],
+                    "description": "该卡牌在离开具有列出的性相的行动框时会对卡牌进行的转换；默认为空，不会有变动。"
+                },
+                "inherits": {
+                    "type": "string",
+                    "description": "如同面向对象中类的继承一样，该字段表明该 element 继承自所指向的 element，这使得无需再次编写重复的 slot、xtrigger、aspects 等字段，这些字段在默认情况下会被继承自父 element。值得注意的是，有一些字段，诸如 icon，并不会被继承。"
+                }
+            }
+        }
     },
     "definitions": {
         "id": {

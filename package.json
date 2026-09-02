@@ -2,7 +2,7 @@
 	"name": "cultsim",
 	"displayName": "Cultist Simulator IDE 2.0",
 	"description": "Cultist Simulator IDE for Modding Core Game",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"publisher": "Hwanwool",
 	"engines": {
 		"vscode": "^1.64.0"
