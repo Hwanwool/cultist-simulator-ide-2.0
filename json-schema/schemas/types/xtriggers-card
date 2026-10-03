@@ -26,11 +26,11 @@
                         "properties": {
                             "id": {
                                 "type": "string",
-                                "description": "id 的作用随 morpheffect 变化：spawn/mutate/transform 时为目标元素 ID；TRM 操作数中为对应对象的 ID，如 DeckDraw/DeckShuffle 的牌组、Recipe/Induce/Link 的配方、LeverFuture/LeverPast 的 lever 值、Trigger/Redirect 的 xtriggers 效果键等。（TRM）"
+                                "description": "id 的作用随 morpheffect 变化：spawn/mutate/transform 时为目标元素 ID；TRM 操作数中为对应对象的 ID，如 deckDraw/deckShuffle 的牌组、recipe/induce/link 的配方、leverFuture/leverPast 的 lever 值、trigger/redirect 的 xtriggers 效果键等。（TRM）"
                             },
                             "morpheffect": {
                                 "type": "string",
-                                "description": "morpheffect 决定效果类型：原生支持 spawn、mutate、transform；TRM 扩展操作数 DeckDraw、DeckShuffle、Recipe、Destroy、Decay、LeverFuture、LeverPast、TimeSpend、TimeSet、Trigger、Redirect、Induce、Link、Move、Apply、Break、Func。TRM 操作数中，催化量即相应 Xtrigger 触发所需的性相的数量，反应量即相应卡牌的数量；若 usemyquantity 与 usecatalystquantity 不额外设定，则二者均为 1。（TRM）",
+                                "description": "morpheffect 决定效果类型：原生支持 spawn、mutate、transform；TRM 扩展操作数 deckDraw、deckShuffle、recipe、destroy、decay、leverFuture、leverPast、timeSpend、timeSet、trigger、redirect、induce、link、move、apply、break、func。TRM 操作数中，催化量即相应 Xtrigger 触发所需的性相的数量，反应量即相应卡牌的数量；若 usemyquantity 与 usecatalystquantity 不额外设定，则二者均为 1。（TRM）",
                                 "oneOf": [
                                     {
                                         "const": "spawn",
@@ -45,71 +45,71 @@
                                         "description": "`Transform` is the default behaviour, and generally only occurs in the advanced syntax when multiple effects are needed, or a chance or level is desired. Level is used to determine the size of the new stack."
                                     },
                                     {
-                                        "const": "DeckDraw",
+                                        "const": "deckDraw",
                                         "description": "从 id 对应的牌组中抽取 level*催化量*反应量 张卡牌。（TRM）"
                                     },
                                     {
-                                        "const": "DeckShuffle",
+                                        "const": "deckShuffle",
                                         "description": "重置 id 对应的牌组。（TRM）"
                                     },
                                     {
-                                        "const": "Recipe",
+                                        "const": "recipe",
                                         "description": "执行 id 配方。（TRM）"
                                     },
                                     {
-                                        "const": "Destroy",
+                                        "const": "destroy",
                                         "description": "摧毁卡牌。此操作数不需要 level。（TRM）"
                                     },
                                     {
-                                        "const": "Decay",
+                                        "const": "decay",
                                         "description": "耗竭卡牌。此操作数不需要 level。（TRM）"
                                     },
                                     {
-                                        "const": "LeverFuture",
+                                        "const": "leverFuture",
                                         "description": "将 id 设为下局游戏使用的 lever 值，usetokenid 决定使用卡牌 id 还是触发该效果的元素 id。尚不明确具体机制。（TRM）"
                                     },
                                     {
-                                        "const": "LeverPast",
+                                        "const": "leverPast",
                                         "description": "设置本局游戏的 lever 值为当前 id。尚不明确具体机制。（TRM）"
                                     },
                                     {
-                                        "const": "TimeSpend",
+                                        "const": "timeSpend",
                                         "description": "减少卡牌的剩余时间 level/1000 秒。（TRM）"
                                     },
                                     {
-                                        "const": "TimeSet",
+                                        "const": "timeSet",
                                         "description": "设定卡牌的剩余时间为 level/1000 秒。（TRM）"
                                     },
                                     {
-                                        "const": "Trigger",
+                                        "const": "trigger",
                                         "description": "对反应卡牌自身运行其 xtriggers 中 id 对应的效果，强度 = level*催化量*反应量。（TRM）"
                                     },
                                     {
-                                        "const": "Redirect",
+                                        "const": "redirect",
                                         "description": "从实际元素（usetokenid 决定）的 xtriggers 里取出 id 列表，逐个执行，遇到 true 停止。（TRM）"
                                     },
                                     {
-                                        "const": "Induce",
+                                        "const": "induce",
                                         "description": "生成一个运行指定 id 定义的 recipe 的动词。此变形效果还支持驱逐属性（expulsion），将内容驱逐到新动词中，但不支持挑战属性。（TRM）"
                                     },
                                     {
-                                        "const": "Link",
+                                        "const": "link",
                                         "description": "类似于 recipe 中的 linked 代码，在执行当前 recipe 的 linked 代码前，会将给定的 id 添加到执行的队列中（比如 recipe 的 linked 代码给出了 idA 和 idB，而此代码给出了 idC，那么 linked 的判定顺序为 A、B、C）。（TRM）"
                                     },
                                     {
-                                        "const": "Move",
+                                        "const": "move",
                                         "description": "随机移动到 topath 包含的一个领域。（TRM）"
                                     },
                                     {
-                                        "const": "Apply",
+                                        "const": "apply",
                                         "description": "立即应用当前缓冲的所有效果。（TRM）"
                                     },
                                     {
-                                        "const": "Break",
+                                        "const": "break",
                                         "description": "终止该配方执行。（TRM）"
                                     },
                                     {
-                                        "const": "Func",
+                                        "const": "func",
                                         "description": "自定义，相关内容请翻阅 TRM 相关代码。（TRM）"
                                     }
                                 ]
@@ -123,7 +123,7 @@
                             },
                             "level": {
                                 "type": "integer",
-                                "description": "level 的作用随 morpheffect 变化，默认为 1。TRM 操作数中：DeckDraw 抽取 level*催化量*反应量 张卡牌；TimeSpend/TimeSet 以 level/1000 秒为单位；Trigger 强度 = level*催化量*反应量。（TRM）",
+                                "description": "level 的作用随 morpheffect 变化，默认为 1。TRM 操作数中：deckDraw 抽取 level*催化量*反应量 张卡牌；timeSpend/timeSet 以 level/1000 秒为单位；trigger 强度 = level*催化量*反应量。（TRM）",
                                 "default": 1,
                                 "minimum": 0,
                                 "maximum": 100
@@ -138,11 +138,11 @@
                             },
                             "usetokenid": {
                                 "type": "boolean",
-                                "description": "true 时使用卡牌 id，false 时使用触发该效果的元素 id；用于 LeverFuture 与 Redirect。（TRM）"
+                                "description": "true 时使用卡牌 id，false 时使用触发该效果的元素 id；用于 leverFuture 与 redirect。（TRM）"
                             },
                             "topath": {
                                 "type": "string",
-                                "description": "目标领域路径，Move 操作数将随机移动到 topath 包含的一个领域。（TRM）"
+                                "description": "目标领域路径，move 操作数将随机移动到 topath 包含的一个领域。（TRM）"
                             },
                             "expulsion": {
                                 "allOf": [
@@ -150,7 +150,7 @@
                                         "$ref": "./expulsion"
                                     }
                                 ],
-                                "description": "驱逐属性，Induce 操作数可将内容驱逐到新动词中，但不支持挑战属性。（TRM）"
+                                "description": "驱逐属性，induce 操作数可将内容驱逐到新动词中，但不支持挑战属性。（TRM）"
                             }
                         }
                     }

@@ -10,7 +10,8 @@ Simplified Chinese version
 ## 原始版本
 
 tiinusen的最新旧版版本号为1.1，最后更新于 2022 Feb. 23
-[text](https://github.com/Tiinusen/vscode-cultsim)
+[原始版本](https://github.com/Tiinusen/vscode-cultsim)
 
 ## How TO Use IT?
-下载最新的Release中的vsix文件，然后在你的vscode本地的扩展页面中选择选项-从VSIX安装。安装完后刷新页面即可使用。
+
+从[Github](https://github.com/Hwanwool/cultist-simulator-ide-2.0)下载最新的Release中的vsix文件，然后在你的vscode本地的扩展页面中选择选项-从VSIX安装。安装完后刷新页面即可使用。
